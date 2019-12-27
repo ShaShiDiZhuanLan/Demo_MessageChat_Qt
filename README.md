@@ -1,0 +1,2 @@
+# Demo_MessageChat_Qt
+QListWidget+QPainter绘制的Item做了一个Demo。该Demo只是做一个示例，代码已公布如下，需要的拿去！气泡式聊天的显示是由QListWidget作为控件，每个气泡是由QListWidgetItem提升成QWidget来实现的。每个气泡可以理解位是一个QWidget，这样可以自由布置QWidget里面的内容。每个Item保存聊天的对话、发送状态、时间、种类等。  这个QWidget主要是显示一个头像+气泡，气泡里面是聊天的内容等。  气泡是在paintEvent事件中，采用QPainter来绘制的。
