@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/Customer Copy.png</file>
+        <file>img/CustomerService.png</file>
+        <file>img/loading4.gif</file>
+    </qresource>
+</RCC>
