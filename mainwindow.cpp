@@ -32,7 +32,7 @@ void MainWindow::on_pushButton_clicked()
 {
     QString msg = ui->textEdit->toPlainText();
     ui->textEdit->setText("");
-    QString time = QString::number(QDateTime::currentDateTime().toTime_t()); //时间戳
+    QString time = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()); //时间戳
 
     bool isSending = true; // 发送中
 
