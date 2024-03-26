@@ -18,15 +18,6 @@
 #include <QLabel>
 #include <QDebug>
 
-class QFontMetricsFCompat : public QFontMetricsF {
-public:
-    explicit QFontMetricsFCompat(const QFont &font) : QFontMetricsF(font) {}
-
-    qreal width(const QString &string) {
-        return this->boundingRect(string).width();
-    }
-};
-
 QNChatMessage::QNChatMessage(QWidget *parent) : QWidget(parent)
 {
     QFont te_font = this->font();
@@ -110,54 +101,21 @@ QSize QNChatMessage::fontRect(QString str)
         m_kuangRightRect.setRect(iconWH + kuangTMP + iconSpaceW + iconRectW - sanJiaoW, m_lineHeight/4*3, m_kuangWidth, hei-m_lineHeight);
     }
     m_textLeftRect.setRect(m_kuangLeftRect.x()+textSpaceRect,m_kuangLeftRect.y()+iconTMPH,
-                           size.width(), m_kuangLeftRect.height() - 2 * iconTMPH + 2);
+                           m_kuangLeftRect.width()-2*textSpaceRect,m_kuangLeftRect.height()-2*iconTMPH);
     m_textRightRect.setRect(m_kuangRightRect.x()+textSpaceRect,m_kuangRightRect.y()+iconTMPH,
-                            size.width(), m_kuangRightRect.height()-2*iconTMPH + 2);
+                            m_kuangRightRect.width()-2*textSpaceRect,m_kuangRightRect.height()-2*iconTMPH);
 
     return QSize(size.width(), hei);
 }
 
 QSize QNChatMessage::getRealString(QString src)
 {
-    QFontMetricsFCompat fm(this->font());
+    QFontMetricsF fm(this->font());
     m_lineHeight = fm.lineSpacing();
     int nCount = src.count("\n");
     int nMaxWidth = 0;
-    if(nCount == 0) {
-        nMaxWidth = fm.boundingRect(src).width();
-        QString value = src;
-        if(nMaxWidth > m_textWidth) {
-            nMaxWidth = m_textWidth;
-            int size = m_textWidth / fm.width(" ");
-            int num = fm.width(value) / m_textWidth;
-            int ttmp = num*fm.width(" ");
-            num = ( fm.width(value) ) / m_textWidth;
-            nCount += num;
-            QString temp = "";
-            for(int i = 0; i < num; i++) {
-                temp += value.mid(i*size, (i+1)*size) + "\n";
-            }
-            src.replace(value, temp);
-        }
-    } else {
-        for(int i = 0; i < (nCount + 1); i++) {
-            QString value = src.split("\n").at(i);
-            nMaxWidth = fm.width(value) > nMaxWidth ? fm.width(value) : nMaxWidth;
-            if(fm.width(value) > m_textWidth) {
-                nMaxWidth = m_textWidth;
-                int size = m_textWidth / fm.width(" ");
-                int num = fm.width(value) / m_textWidth;
-                num = ((i+num)*fm.width(" ") + fm.width(value)) / m_textWidth;
-                nCount += num;
-                QString temp = "";
-                for(int i = 0; i < num; i++) {
-                    temp += value.mid(i*size, (i+1)*size) + "\n";
-                }
-                src.replace(value, temp);
-            }
-        }
-    }
-    return QSize(nMaxWidth+m_spaceWid, (nCount + 1) * m_lineHeight+2*m_lineHeight);
+    auto rect = fm.boundingRect(QRectF(0, 0, m_textWidth, m_lineHeight), Qt::TextWrapAnywhere, src);
+    return QSize(rect.width() + m_spaceWid, rect.height() + 3 * m_lineHeight);
 }
 
 void QNChatMessage::paintEvent(QPaintEvent *event)
@@ -206,7 +164,7 @@ void QNChatMessage::paintEvent(QPaintEvent *event)
         penText.setColor(QColor(51,51,51));
         painter.setPen(penText);
         QTextOption option(Qt::AlignLeft | Qt::AlignVCenter);
-        option.setWrapMode(QTextOption::NoWrap);
+        option.setWrapMode(QTextOption::WrapAnywhere);
         painter.setFont(this->font());
         painter.drawText(m_textLeftRect, m_msg,option);
     }  else if(m_userType == User_Type::User_Me) { // 自己
@@ -235,7 +193,7 @@ void QNChatMessage::paintEvent(QPaintEvent *event)
         penText.setColor(Qt::blue);
         painter.setPen(penText);
         QTextOption option(Qt::AlignLeft | Qt::AlignVCenter);
-        option.setWrapMode(QTextOption::NoWrap);
+        option.setWrapMode(QTextOption::WrapAnywhere);
         painter.setFont(this->font());
         painter.drawText(m_textRightRect,m_msg,option);
     }  else if(m_userType == User_Type::User_Time) { // 时间
@@ -243,7 +201,7 @@ void QNChatMessage::paintEvent(QPaintEvent *event)
         penText.setColor(QColor(153,153,153));
         painter.setPen(penText);
         QTextOption option(Qt::AlignCenter);
-        option.setWrapMode(QTextOption::NoWrap);
+        option.setWrapMode(QTextOption::WrapAnywhere);
         QFont te_font = this->font();
         te_font.setFamily("MicrosoftYaHei");
         te_font.setPointSize(10);
